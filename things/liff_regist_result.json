@@ -1,0 +1,10 @@
+{
+  "id": "6554578541370910694",
+  "name": "LINE Things Drink dispenser",
+  "type": "BLE",
+  "channelId": 1597172191,
+  "actionUri": "line://app/1597172191-jezrKZRq",
+  "serviceUuid": "2d886693-9552-4497-894a-daef885fb3dd",
+  "psdiServiceUuid": "e625601e-9e55-4597-a598-76018a0d293d",
+  "psdiCharacteristicUuid": "26e2b12b-85f0-4f3f-9fdd-91d114270e6e"
+}
