@@ -35,7 +35,7 @@
                 <v-layout>
                     <v-flex xs12>
                         <v-toolbar color="green darken-2" dark>
-                            <v-toolbar-title>LINE Things Drink Bar</v-toolbar-title>
+                            <v-toolbar-title>LINE Things Drink bar</v-toolbar-title>
                         </v-toolbar>
                         <!-- items -->
                         <v-card>
@@ -46,6 +46,11 @@
                                 <v-layout row wrap>
                                     <v-flex xs12 v-for="(item, index) in items">
                                         <v-card color="brown lighten-5" class="black--text">
+<!--                                            <v-layout row>-->
+<!--                                                <v-flex xs10 offset-xs1>-->
+<!--                                                    <div class="headline">[[ item.name ]]</div>-->
+<!--                                                </v-flex>-->
+<!--                                            </v-layout>-->
                                             <v-layout pt-1>
                                                 <v-flex xs5>
                                                     <v-img
@@ -90,6 +95,11 @@
                             <v-toolbar-title>LINE Pay で支払いする</v-toolbar-title>
                         </v-toolbar>
                         <v-card>
+<!--                            <v-layout row>-->
+<!--                                <v-flex xs10 offset-xs1>-->
+<!--                                    <div class="headline">[[ order.title ]]</div>-->
+<!--                                </v-flex>-->
+<!--                            </v-layout>-->
                             <v-layout pt-4 pb-1>
                                 <v-flex xs5>
                                     <v-img
@@ -117,6 +127,15 @@
                                 >
                                     Pay by LINE Pay
                                 </v-btn>
+<!--                                <v-flex xs8 offset-xs2>-->
+<!--                                    <form action="/pay/reserve" method="post">-->
+<!--                                        <input type="hidden" name="order_id" :value="order.id" />-->
+<!--                                        <input type="hidden" name="user_id" :value="line_user_id" />-->
+<!--                                        <button type="submit">-->
+<!--                                            <img src="{{ url_for('static', filename='line_pay_logo.png') }}" />-->
+<!--                                        </button>-->
+<!--                                    </form>-->
+<!--                                </v-flex>-->
                             </v-card-actions>
                         </v-card>
                     </v-flex>
@@ -126,7 +145,7 @@
             <v-container fluid v-else-if="flow_status === 'PAYING'">
                 <v-layout>
                     <v-flex xs12>
-                        <h3>しばらくお待ち下さい</h3>
+                        <h3>Please wait...</h3>
                     </v-flex>
                 </v-layout>
             </v-container>
@@ -137,7 +156,7 @@
                     <v-flex xs12>
                         <v-card>
                             <v-toolbar color="green darken-2" dark>
-                                <v-toolbar-title>LINE Things Drink Bar</v-toolbar-title>
+                                <v-toolbar-title>LINE Things Drink dispenser</v-toolbar-title>
                             </v-toolbar>
                             <v-card-title primary-title>
                                 <v-flex xs-12>
@@ -166,7 +185,31 @@
                                         </v-btn>
                                     </div>
                                 </v-flex>
+<!--                                <div>-->
+<!--                                    <h3 v-if="line_things.ble_available === true"-->
+<!--                                            class="headline mb-0">-->
+<!--                                        BLE is available!!!-->
+<!--                                    </h3>-->
+<!--                                    <h3 v-else class="headline mb-0">-->
+<!--                                        BLE is not available!!!-->
+<!--                                    </h3>-->
+<!--                                    <div> {{ message }} </div>-->
+<!--                                </div>-->
+<!--                                <div>-->
+<!--                                    <div v-if="line_things.is_connected_to_device === true"-->
+<!--                                            class="headline mb-0">-->
+<!--                                        <h3>Connected to BLE device.</h3>-->
+<!--                                        [[ line_things.connected_device.id ]]<br/>-->
+<!--                                        [[ line_things.connected_device.name ]]<br/>-->
+<!--                                    </div>-->
+<!--                                    <h3 v-else class="headline mb-0">-->
+<!--                                        No BLE device for connect...-->
+<!--                                    </h3>-->
+<!--                                </div>-->
                             </v-card-title>
+<!--                            <v-card-actions>-->
+<!--                                buttons here-->
+<!--                            </v-card-actions>-->
                         </v-card>
                     </v-flex>
                 </v-layout>
@@ -182,11 +225,20 @@
                 </v-layout>
             </v-container>
 <!-- Footer -->
-            <v-footer class="pa-3">
-                <div>LIFF Version: [[ liff_version ]]</div>
-                <v-spacer></v-spacer>
-                <div>App Version: [[ app_version ]]</div>
-            </v-footer>
+            <v-container>
+                <v-layout >
+                    <v-flex xs-12>
+                        <v-card>
+                            <v-card-title primary-title>
+                                <div>
+                                    <div>LIFF Version: [[ liff_version ]]</div>
+                                    <div>App Version: [[ app_version ]]</div>
+                                </div>
+                            </v-card-title>
+                        </v-card>
+                    </v-flex>
+                </v-layout>
+            </v-container>
         </template>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>

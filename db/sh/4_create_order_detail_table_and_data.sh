@@ -14,8 +14,4 @@ insert into purchase_order_detail
     (id, purchase_order_id, item_id, unit_price, quantity, amount, created_timestamp)
     values
     ('detail-111111', 'order-111111', 'item-0001', 1000, 2, 2000, 1558925437);
-insert into purchase_order_detail
-    (id, purchase_order_id, item_id, unit_price, quantity, amount, created_timestamp)
-    values
-    ('detail-222222', 'order-222222', 'item-0001', 3000, 1, 3000, 1558925437);
 EOSQL

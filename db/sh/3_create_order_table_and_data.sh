@@ -10,8 +10,6 @@ CREATE TABLE purchase_order (
     transaction_id varchar(100) UNIQUE,
     ordered_timestamp bigint NOT NULL DEFAULT 0,
     paid_timestamp bigint NOT NULL DEFAULT 0,
-    win_a_prize boolean,
-    prized_timestamp bigint NOT NULL DEFAULT 0,
     created_timestamp bigint NOT NULL DEFAULT 0,
     updated_timestamp bigint NOT NULL DEFAULT extract(epoch from now())
 );
@@ -19,9 +17,4 @@ insert into purchase_order
     (id, user_id, title, amount, status, ordered_timestamp, created_timestamp)
     values
     ('order-111111', 'dummy-user', 'test test order', 2000, 'ORDERED', 1558925437, 1558925437);
-insert into purchase_order
-    (id, user_id, title, amount, status, ordered_timestamp, created_timestamp, transaction_id, paid_timestamp)
-    values
-    ('order-222222', 'dummy-user', 'test test order', 3000, 'PAYMENT_COMPLETED', 1558925437, 1558925437,
-    'order-222222', 1558925437);
 EOSQL

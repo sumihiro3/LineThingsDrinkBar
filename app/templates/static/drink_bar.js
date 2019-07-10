@@ -15,7 +15,6 @@ const app = new Vue({
             title: null,
             amount: null,
             ordered_item_image_url: null,
-            slot: 0
         },
         transaction_id: null,
         flow_status: 'INITIAL',
@@ -64,15 +63,9 @@ const app = new Vue({
             console.log('transaction_id: ', transaction_id)
             console.log('this.transaction_id: ', this.transaction_id)
             if (this.transaction_id) {
+                // 決済完了していれば、DrinkDispenser デバイスに接続する
                 console.log('Payment transaction Done!!')
-                // 決済完了していれば、決済された注文情報を取得
-                this.getOrderByTransactionId(this.transaction_id)
-                //
-                // const draw_prize_liff_url = `line://app/1597172191-m5AOnlLv?transaction_id=order-222222`
-                // console.log(draw_prize_liff_url)
-                //
                 // this.payment_transaction_done = true
-                // DrinkDispenser デバイスに接続する
                 this.flow_status = 'PAID'
                 this.api_loading = false
                 await this.initializeLineThingsApp()
@@ -122,7 +115,6 @@ const app = new Vue({
             this.order.id = this.api_result.order_id
             this.order.title = this.api_result.order_title
             this.order.amount = this.api_result.order_amount
-            this.order.slot = this.api_result.order_item_slot
             this.order.ordered_item_image_url = this.api_result.ordered_item_image_url
             this.flow_status = 'ORDERED'
             // this.payment_transaction_done = false
@@ -152,80 +144,13 @@ const app = new Vue({
             window.location.href = payment_url
             this.api_loading = false
         },
-        getOrderByTransactionId: async function(tx_id) {
-            console.log('function getOrderByTransactionId called!')
-            // Item 取得
-            this.api_loading = true
-            const api_url = `/api/transaction_order/${this.line_user_id}/${tx_id}`
-            const response = await axios.get(api_url).catch(error => {
-                console.error('API getOrderByTransactionId failed...')
-                console.error(error)
-                this.api_result = null
-                this.api_loading = false
-            })
-            console.log('API response: ', response)
-            this.api_loading = false
-            const order_result = response.data.order
-            this.order.id = order_result.id
-            this.order.title = order_result.title
-            this.order.amount = order_result.amount
-            this.order.slot = order_result.item_slot
-            this.order.ordered_item_image_url = order_result.item_image_url
-        },
         closeLiffWindow: function() {
             console.log("Closing LIFF page")
             if (this.liff_initialized === true) {
-                const draw_prize_liff_url = `line://app/1597172191-m5AOnlLv?transaction_id=${this.transaction_id}`
-                console.log(draw_prize_liff_url)
-                const flex_message = {
-                    "type": "bubble",
-                    "hero": {
-                        "type": "image",
-                        "url": "https://3.bp.blogspot.com/-G2F1MJmhlo4/UnIEI6QFVMI/AAAAAAAAZ-o/qIuCWdr9ir8/s400/fukubiki_ki.png",
-                        "size": "full",
-                        "aspectRatio": "2:1.675",
-                        "aspectMode": "cover"
-                    },
-                    "body": {
-                        "type": "box",
-                        "layout": "vertical",
-                        "contents": [
-                            {
-                                "type": "text",
-                                "text": "抽選してみよう！",
-                                "weight": "bold",
-                                "size": "xl"
-                            }
-                        ]
-                    },
-                    "footer": {
-                        "type": "box",
-                        "layout": "vertical",
-                        "spacing": "sm",
-                        "contents": [
-                            {
-                                "type": "button",
-                                "style": "primary",
-                                "height": "sm",
-                                "action": {
-                                    "type": "uri",
-                                    "label": "抽選する",
-                                    "uri": draw_prize_liff_url
-                                }
-                            },
-                            {
-                                "type": "spacer",
-                                "size": "sm"
-                            }
-                        ],
-                        "flex": 0
-                    }
-                }
                 liff.sendMessages([
                     {
-                        "type": 'flex',
-                        "altText": "抽選してみよう！",
-                        "contents": flex_message
+                        type:'text',
+                        text: `ご購入ありがとうございました！`
                     }
                 ]).then(() => {
                     console.log('message sent');
@@ -251,7 +176,7 @@ const app = new Vue({
             });
         },
         liffCheckAvailablityAndDo(callbackIfAvailable) {
-            console.log('f_unction liffCheckAvailablityAndDo called!')
+            console.log('function liffCheckAvailablityAndDo called!')
             // Check Bluetooth availability
             liff.bluetooth.getAvailability().then(isAvailable => {
                 if (isAvailable) {
@@ -373,7 +298,7 @@ const app = new Vue({
             console.log('function liffToggleDeviceLedState called!')
             // on: 0x01
             // off: 0x00
-            const command = new Uint8Array([this.order.slot])
+            const command = new Uint8Array([0x01])
             this.ledCharacteristic.writeValue(command).then(() => {
                 // disconnect device
                 console.log('Done write command to device')

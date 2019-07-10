@@ -3,7 +3,6 @@ import os
 import uuid
 import logging
 from datetime import datetime as dt
-import random
 from flask import (
     render_template, jsonify, request, abort, redirect
 )
@@ -63,28 +62,19 @@ def get_drink_bar():
     app.logger.info('handler get_drink_bar called!')
     return render_template(
         'drink_bar.html',
+        # message=None,
+        # transaction_id=None
+    )
+
+
+@app.route('/pay_by_line_pay', methods=['GET'])
+def get_pay_by_line_pay():
+    app.logger.info('handler get_pay_by_line_pay called!')
+    return render_template(
+        'pay_by_line_pay.html',
     )
 
 #
-# @app.route('/pay_by_line_pay', methods=['GET'])
-# def get_pay_by_line_pay():
-#     app.logger.info('handler get_pay_by_line_pay called!')
-#     return render_template(
-#         'pay_by_line_pay.html',
-#     )
-
-
-@app.route('/draw_a_prize', methods=['GET'])
-def get_draw_a_prize():
-    app.logger.info('handler get_draw_a_prize called!')
-    transaction_id = request.args.get('transaction_id')
-    app.logger.info('transaction_id: %s', transaction_id)
-    return render_template(
-        'draw_a_prize.html',
-        transaction_id=transaction_id
-    )
-
-
 @app.route('/api/items', methods=['GET'])
 def get_items():
     app.logger.info('handler get_items called!')
@@ -116,9 +106,6 @@ def post_purchase_order():
     request_dict = request.json
     user_id = request_dict.get('user_id', None)
     user = User.query.filter(User.id == user_id).first()
-    # ユーザーが登録されていなければ新規登録
-    if user is None:
-        user = add_user(user_id)
     order_items = request_dict.get('order_items', [])
     order_item_list = Item.query.filter(Item.id.in_(order_items))
     app.logger.debug('order_item_list: %s', order_item_list)
@@ -130,7 +117,6 @@ def post_purchase_order():
         'order_id': order.id,
         'order_title': order.title,
         'order_amount': order.amount,
-        'order_item_slot': ordered_item.slot,
         'ordered_item_image_url': ordered_item.image_url
     })
 
@@ -142,7 +128,6 @@ def get_order_info(user_id, order_id):
     app.logger.debug('order_id: %s', order_id)
     # query order
     order = PurchaseOrder.query.filter(PurchaseOrder.id == order_id).first()
-    # return
     return jsonify({
         'order': {
             'id': order.id,
@@ -150,72 +135,6 @@ def get_order_info(user_id, order_id):
             'amount': order.amount
         }
     })
-
-
-@app.route('/api/transaction_order/<user_id>/<transaction_id>', methods=['GET'])
-def get_order_info_by_transaction(user_id, transaction_id):
-    app.logger.info('handler get_order_info_by_transaction called!')
-    app.logger.debug('user_id: %s', user_id)
-    app.logger.debug('transaction_id: %s', transaction_id)
-    # query order
-    order = PurchaseOrder.query.filter(PurchaseOrder.transaction_id == transaction_id).first()
-    ordered_item = Item.query.filter(Item.id == order.details[0].item_id).first()
-    # return
-    return jsonify({
-        'order': {
-            'id': order.id,
-            'title': order.title,
-            'amount': order.amount,
-            'item_slot': ordered_item.slot,
-            'item_image_url': ordered_item.image_url,
-            'can_draw_a_prize': order.can_draw_a_prize()
-        }
-    })
-
-
-@app.route('/api/draw_a_prize/<transaction_id>', methods=['GET'])
-def get_draw_a_prize_api(transaction_id):
-    app.logger.info('handler get_draw_a_prize_api called!')
-    app.logger.debug('transaction_id: %s', transaction_id)
-    order = PurchaseOrder.query.filter(PurchaseOrder.transaction_id == transaction_id).first()
-    app.logger.info('order: %s', order)
-    # 抽選結果
-    draw_result = False
-    # 抽選実施
-    if order is not None and order.can_draw_a_prize() is True:
-        random_list = list(range(0, 100))
-        random.shuffle(random_list)
-        draw_number = random_list[0]
-        app.logger.debug('draw_number: %s', draw_number)
-        if draw_number > 33:
-            draw_result = True
-        # update transaction info
-        order.win_a_prize = draw_result
-        order.prized_timestamp = int(dt.now().timestamp())
-        db.session.commit()
-    else:
-        # すでに抽選済みや決済途中の場合は抽選結果を書き込まない
-        pass
-    # return result
-    return jsonify({
-        'transaction_id': transaction_id,
-        'draw_a_prize_result': draw_result
-    })
-
-
-def add_user(user_id):
-    """
-    ユーザー情報を追加する
-    :param user_id:
-    :type user_id: str
-    :return:
-    """
-    app.logger.info('add_user called!')
-    user = User(user_id, 'MakersBazaarOsakaUser', UserRole.CONSUMER)
-    user.created_timestamp = int(dt.now().timestamp())
-    db.session.add(user)
-    db.session.commit()
-    return user
 
 
 def add_purchase_order(user, order_items):
