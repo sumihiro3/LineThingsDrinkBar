@@ -15,6 +15,7 @@ const app = new Vue({
             title: null,
             amount: null,
             ordered_item_image_url: null,
+            slot: 0
         },
         transaction_id: null,
         flow_status: 'INITIAL',
@@ -63,7 +64,9 @@ const app = new Vue({
             console.log('transaction_id: ', transaction_id)
             console.log('this.transaction_id: ', this.transaction_id)
             if (this.transaction_id) {
-                // 決済完了していれば、DrinkDispenser デバイスに接続する
+                // 決済完了していれば、決済された注文情報を取得
+                this.getOrderByTransactionId(this.transaction_id)
+                // DrinkDispenser デバイスに接続する
                 console.log('Payment transaction Done!!')
                 // this.payment_transaction_done = true
                 this.flow_status = 'PAID'
@@ -115,6 +118,7 @@ const app = new Vue({
             this.order.id = this.api_result.order_id
             this.order.title = this.api_result.order_title
             this.order.amount = this.api_result.order_amount
+            this.order.slot = this.api_result.order_item_slot
             this.order.ordered_item_image_url = this.api_result.ordered_item_image_url
             this.flow_status = 'ORDERED'
             // this.payment_transaction_done = false
@@ -143,6 +147,26 @@ const app = new Vue({
             // redirect to payment_url
             window.location.href = payment_url
             this.api_loading = false
+        },
+        getOrderByTransactionId: async function(tx_id) {
+            console.log('function getOrderByTransactionId called!')
+            // Item 取得
+            this.api_loading = true
+            const api_url = `/api/transaction_order/${this.line_user_id}/${tx_id}`
+            const response = await axios.get(api_url).catch(error => {
+                console.error('API getOrderByTransactionId failed...')
+                console.error(error)
+                this.api_result = null
+                this.api_loading = false
+            })
+            console.log('API response: ', response)
+            this.api_loading = false
+            order_result = response.data.order
+            this.order.id = order_result.id
+            this.order.title = order_result.title
+            this.order.amount = order_result.amount
+            this.order.slot = order_result.item_slot
+            this.order.ordered_item_image_url = order_result.item_image_url
         },
         closeLiffWindow: function() {
             console.log("Closing LIFF page")
@@ -298,7 +322,7 @@ const app = new Vue({
             console.log('function liffToggleDeviceLedState called!')
             // on: 0x01
             // off: 0x00
-            const command = new Uint8Array([0x01])
+            const command = new Uint8Array([this.order.slot])
             this.ledCharacteristic.writeValue(command).then(() => {
                 // disconnect device
                 console.log('Done write command to device')

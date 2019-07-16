@@ -76,6 +76,7 @@ class Item(db.Model):
     description = Column(Text, nullable=True)
     unit_price = Column(Integer, nullable=False)
     stock = Column(Integer, nullable=False, default=0)
+    slot = Column(Integer, nullable=False, default=0)
     image_url = Column(String(200), nullable=False)
     active = Column(Boolean, default=True)
     sales_period_timestamp_from = Column(BigInteger, default=0, nullable=False)

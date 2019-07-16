@@ -117,6 +117,7 @@ def post_purchase_order():
         'order_id': order.id,
         'order_title': order.title,
         'order_amount': order.amount,
+        'order_item_slot': ordered_item.slot,
         'ordered_item_image_url': ordered_item.image_url
     })
 
@@ -128,11 +129,32 @@ def get_order_info(user_id, order_id):
     app.logger.debug('order_id: %s', order_id)
     # query order
     order = PurchaseOrder.query.filter(PurchaseOrder.id == order_id).first()
+    # return
     return jsonify({
         'order': {
             'id': order.id,
             'title': order.title,
             'amount': order.amount
+        }
+    })
+
+
+@app.route('/api/transaction_order/<user_id>/<transaction_id>', methods=['GET'])
+def get_order_info_by_transaction(user_id, transaction_id):
+    app.logger.info('handler get_order_info_by_transaction called!')
+    app.logger.debug('user_id: %s', user_id)
+    app.logger.debug('transaction_id: %s', transaction_id)
+    # query order
+    order = PurchaseOrder.query.filter(PurchaseOrder.transaction_id == transaction_id).first()
+    ordered_item = Item.query.filter(Item.id == order.details[0].item_id).first()
+    # return
+    return jsonify({
+        'order': {
+            'id': order.id,
+            'title': order.title,
+            'amount': order.amount,
+            'item_slot': ordered_item.slot,
+            'item_image_url': ordered_item.image_url
         }
     })
 
