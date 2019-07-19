@@ -63,17 +63,15 @@ def get_drink_bar():
     app.logger.info('handler get_drink_bar called!')
     return render_template(
         'drink_bar.html',
-        # message=None,
-        # transaction_id=None
     )
 
-
-@app.route('/pay_by_line_pay', methods=['GET'])
-def get_pay_by_line_pay():
-    app.logger.info('handler get_pay_by_line_pay called!')
-    return render_template(
-        'pay_by_line_pay.html',
-    )
+#
+# @app.route('/pay_by_line_pay', methods=['GET'])
+# def get_pay_by_line_pay():
+#     app.logger.info('handler get_pay_by_line_pay called!')
+#     return render_template(
+#         'pay_by_line_pay.html',
+#     )
 
 
 @app.route('/draw_a_prize', methods=['GET'])
@@ -86,7 +84,7 @@ def get_draw_a_prize():
         transaction_id=transaction_id
     )
 
-#
+
 @app.route('/api/items', methods=['GET'])
 def get_items():
     app.logger.info('handler get_items called!')
@@ -178,7 +176,8 @@ def get_draw_a_prize_api(transaction_id):
     app.logger.debug('transaction_id: %s', transaction_id)
     order = PurchaseOrder.query.filter(PurchaseOrder.transaction_id == transaction_id).first()
     app.logger.info('order: %s', order)
-    draw_result = False     # 抽選結果
+    # 抽選結果
+    draw_result = False
     # 抽選実施
     if order is not None and order.can_draw_a_prize() is True:
         random_list = list(range(0, 100))
