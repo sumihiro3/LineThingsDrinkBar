@@ -3,6 +3,7 @@ import os
 import uuid
 import logging
 from datetime import datetime as dt
+import random
 from flask import (
     render_template, jsonify, request, abort, redirect
 )
@@ -72,6 +73,17 @@ def get_pay_by_line_pay():
     app.logger.info('handler get_pay_by_line_pay called!')
     return render_template(
         'pay_by_line_pay.html',
+    )
+
+
+@app.route('/draw_a_prize', methods=['GET'])
+def get_draw_a_prize():
+    app.logger.info('handler get_draw_a_prize called!')
+    transaction_id = request.args.get('transaction_id')
+    app.logger.info('transaction_id: %s', transaction_id)
+    return render_template(
+        'draw_a_prize.html',
+        transaction_id=transaction_id
     )
 
 #
@@ -154,8 +166,38 @@ def get_order_info_by_transaction(user_id, transaction_id):
             'title': order.title,
             'amount': order.amount,
             'item_slot': ordered_item.slot,
-            'item_image_url': ordered_item.image_url
+            'item_image_url': ordered_item.image_url,
+            'can_draw_a_prize': order.can_draw_a_prize()
         }
+    })
+
+
+@app.route('/api/draw_a_prize/<transaction_id>', methods=['GET'])
+def get_draw_a_prize_api(transaction_id):
+    app.logger.info('handler get_draw_a_prize_api called!')
+    app.logger.debug('transaction_id: %s', transaction_id)
+    order = PurchaseOrder.query.filter(PurchaseOrder.transaction_id == transaction_id).first()
+    app.logger.info('order: %s', order)
+    draw_result = False     # 抽選結果
+    # 抽選実施
+    if order is not None and order.can_draw_a_prize() is True:
+        random_list = list(range(0, 100))
+        random.shuffle(random_list)
+        draw_number = random_list[0]
+        app.logger.debug('draw_number: %s', draw_number)
+        if draw_number > 33:
+            draw_result = True
+        # update transaction info
+        order.win_a_prize = draw_result
+        order.prized_timestamp = int(dt.now().timestamp())
+        db.session.commit()
+    else:
+        # すでに抽選済みや決済途中の場合は抽選結果を書き込まない
+        pass
+    # return result
+    return jsonify({
+        'transaction_id': transaction_id,
+        'draw_a_prize_result': draw_result
     })
 
 

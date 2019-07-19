@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://d.line-scdn.net/liff/1.0/sdk.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        const transaction_id = '{{ transaction_id }}';
+    </script>
+</head>
+<body>
+    <div id="app">
+        <template id="drink_bar">
+<!--    API is loading...     -->
+            <v-container fluid v-if="api_loading === true">
+                <!-- TODO 抽選中な感じを出すメッセージや画像を表示する -->
+                <v-layout>
+                    <v-flex xs12>
+                        <v-card color="brown lighten-5" class="black--text">
+                            <v-card-title>
+                                <div>
+                                    <div><h2>抽選中</h2></div>
+                                </div>
+                            </v-card-title>
+                            <v-layout pt-1>
+                                <v-img
+                                        src="https://3.bp.blogspot.com/-G2F1MJmhlo4/UnIEI6QFVMI/AAAAAAAAZ-o/qIuCWdr9ir8/s400/fukubiki_ki.png"
+                                        height="200px"
+                                        contain
+                                ></v-img>
+                            </v-layout>
+                        </v-card>
+                    </v-flex>
+                </v-layout>
+
+            </v-container>
+<!--    Win a prize     -->
+            <v-container fluid v-else-if="draw_a_prize_result === true">
+                <v-layout>
+                    <v-flex xs12>
+                        <v-card color="brown lighten-5" class="black--text">
+                            <v-card-title>
+                                <div>
+                                    <div><h2>あたり！！おめでとう〜〜！</h2></div>
+                                    <div><h5>スタッフにこの画面を見せてね</h5></div>
+                                </div>
+                            </v-card-title>
+                            <v-layout pt-1>
+                                <v-img
+                                        src="https://3.bp.blogspot.com/-n1TochpOI8M/WTd48nvtsMI/AAAAAAABEr0/lvzp2xvYT_Yu303SXlfid2WEjFOErVvxQCLcB/s800/pose_kuji_tousen_man.png"
+                                        height="200px"
+                                        contain
+                                ></v-img>
+                            </v-layout>
+                            <v-card-actions class="pa-3">
+                                <v-btn
+                                        @click="closeLiffWindow()"
+                                        class="white--text"
+                                        color="brown" block>
+                                    閉じる
+                                </v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-flex>
+                </v-layout>
+            </v-container>
+<!--    Lose a prize     -->
+            <v-container fluid v-else>
+                <v-layout>
+                    <v-flex xs12>
+                        <v-card color="brown lighten-5" class="black--text">
+                            <v-card-title>
+                                <div>
+                                    <div><h2>ハズレ。。。</h2></div>
+                                    <div><h5>また挑戦してね</h5></div>
+                                </div>
+                            </v-card-title>
+                            <v-layout pt-1>
+                                <v-img
+                                        src="https://3.bp.blogspot.com/-tT4w1UcRCT8/U9y_SoN6IxI/AAAAAAAAjaQ/1WRIrXDc0-g/s800/kuji_hazure.png"
+                                        height="200px"
+                                        contain
+                                ></v-img>
+                            </v-layout>
+                            <v-card-actions class="pa-3">
+                                <v-btn
+                                        @click="closeLiffWindow()"
+                                        class="white--text"
+                                        color="brown" block>
+                                    閉じる
+                                </v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-flex>
+                </v-layout>
+            </v-container>
+<!-- Footer -->
+            <v-footer class="pa-3">
+                <div>LIFF Version: [[ liff_version ]]</div>
+                <v-spacer></v-spacer>
+                <div>App Version: [[ app_version ]]</div>
+            </v-footer>
+        </template>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="{{ url_for('static', filename='vconsole.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='draw_a_prize.js') }}"></script>
+</body>
+</html>
