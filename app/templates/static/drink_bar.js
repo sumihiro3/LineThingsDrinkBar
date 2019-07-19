@@ -64,11 +64,15 @@ const app = new Vue({
             console.log('transaction_id: ', transaction_id)
             console.log('this.transaction_id: ', this.transaction_id)
             if (this.transaction_id) {
+                console.log('Payment transaction Done!!')
                 // 決済完了していれば、決済された注文情報を取得
                 this.getOrderByTransactionId(this.transaction_id)
-                // DrinkDispenser デバイスに接続する
-                console.log('Payment transaction Done!!')
+                //
+                // const draw_prize_liff_url = `line://app/1597172191-m5AOnlLv?transaction_id=order-222222`
+                // console.log(draw_prize_liff_url)
+                //
                 // this.payment_transaction_done = true
+                // DrinkDispenser デバイスに接続する
                 this.flow_status = 'PAID'
                 this.api_loading = false
                 await this.initializeLineThingsApp()
@@ -161,7 +165,7 @@ const app = new Vue({
             })
             console.log('API response: ', response)
             this.api_loading = false
-            order_result = response.data.order
+            const order_result = response.data.order
             this.order.id = order_result.id
             this.order.title = order_result.title
             this.order.amount = order_result.amount
@@ -171,10 +175,61 @@ const app = new Vue({
         closeLiffWindow: function() {
             console.log("Closing LIFF page")
             if (this.liff_initialized === true) {
+                const draw_prize_liff_url = `line://app/1597172191-QVEJ3evq?transaction_id=${this.transaction_id}`
+                console.log(draw_prize_liff_url)
+                const flex_message = {
+                    "type": "bubble",
+                    "hero": {
+                        "type": "image",
+                        "url": "https://3.bp.blogspot.com/-G2F1MJmhlo4/UnIEI6QFVMI/AAAAAAAAZ-o/qIuCWdr9ir8/s400/fukubiki_ki.png",
+                        "size": "full",
+                        "aspectRatio": "2:1.675",
+                        "aspectMode": "cover"
+                    },
+                    "body": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "抽選してみよう！",
+                                "weight": "bold",
+                                "size": "xl"
+                            }
+                        ]
+                    },
+                    "footer": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "spacing": "sm",
+                        "contents": [
+                            {
+                                "type": "button",
+                                "style": "primary",
+                                "height": "sm",
+                                "action": {
+                                    "type": "uri",
+                                    "label": "抽選する",
+                                    "uri": draw_prize_liff_url
+                                }
+                            },
+                            {
+                                "type": "spacer",
+                                "size": "sm"
+                            }
+                        ],
+                        "flex": 0
+                    }
+                }
                 liff.sendMessages([
                     {
+                        "type": 'flex',
+                        "altText": "抽選してみよう！",
+                        "contents": flex_message
+                    },
+                    {
                         type:'text',
-                        text: `ご購入ありがとうございました！`
+                        text: `ご購入ありがとうございました！   ${draw_prize_liff_url}`
                     }
                 ]).then(() => {
                     console.log('message sent');
@@ -200,7 +255,7 @@ const app = new Vue({
             });
         },
         liffCheckAvailablityAndDo(callbackIfAvailable) {
-            console.log('function liffCheckAvailablityAndDo called!')
+            console.log('f_unction liffCheckAvailablityAndDo called!')
             // Check Bluetooth availability
             liff.bluetooth.getAvailability().then(isAvailable => {
                 if (isAvailable) {

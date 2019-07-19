@@ -15,7 +15,7 @@ services:
       LINE_PAY_URL: https://sandbox-api-pay.line.me
       LINE_PAY_CHANNEL_ID: 1651375995
       LINE_PAY_CHANNEL_SECRET: e1285ef1486a4a18c70f7e5a2bb959aa
-      LINE_PAY_CONFIRM_URL: https://49788d5b.ngrok.io/pay/confirm
+      LINE_PAY_CONFIRM_URL: https://9fdbed8b.ngrok.io/pay/confirm
       QUOTAGUARDSTATIC_URL: http://c1d5ikljkuvor4:s415QrLcMCxm8HqE8cK-Kg_F2Q@us-east-static-06.quotaguard.com:9293
     volumes:
       - ./app:/app
