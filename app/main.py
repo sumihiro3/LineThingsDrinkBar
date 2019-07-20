@@ -116,6 +116,9 @@ def post_purchase_order():
     request_dict = request.json
     user_id = request_dict.get('user_id', None)
     user = User.query.filter(User.id == user_id).first()
+    # ユーザーが登録されていなければ新規登録
+    if user is None:
+        user = add_user(user_id)
     order_items = request_dict.get('order_items', [])
     order_item_list = Item.query.filter(Item.id.in_(order_items))
     app.logger.debug('order_item_list: %s', order_item_list)
@@ -198,6 +201,21 @@ def get_draw_a_prize_api(transaction_id):
         'transaction_id': transaction_id,
         'draw_a_prize_result': draw_result
     })
+
+
+def add_user(user_id):
+    """
+    ユーザー情報を追加する
+    :param user_id:
+    :type user_id: str
+    :return:
+    """
+    app.logger.info('add_user called!')
+    user = User(user_id, 'MakersBazaarOsakaUser', UserRole.CONSUMER)
+    user.created_timestamp = int(dt.now().timestamp())
+    db.session.add(user)
+    db.session.commit()
+    return user
 
 
 def add_purchase_order(user, order_items):
