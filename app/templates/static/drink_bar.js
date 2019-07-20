@@ -175,7 +175,7 @@ const app = new Vue({
         closeLiffWindow: function() {
             console.log("Closing LIFF page")
             if (this.liff_initialized === true) {
-                const draw_prize_liff_url = `line://app/1597172191-QVEJ3evq?transaction_id=${this.transaction_id}`
+                const draw_prize_liff_url = `line://app/1597172191-m5AOnlLv?transaction_id=${this.transaction_id}`
                 console.log(draw_prize_liff_url)
                 const flex_message = {
                     "type": "bubble",
@@ -226,10 +226,6 @@ const app = new Vue({
                         "type": 'flex',
                         "altText": "抽選してみよう！",
                         "contents": flex_message
-                    },
-                    {
-                        type:'text',
-                        text: `ご購入ありがとうございました！   ${draw_prize_liff_url}`
                     }
                 ]).then(() => {
                     console.log('message sent');
