@@ -52,7 +52,7 @@ int md1_enB = 13;
 //int md2_enB = 7;
 
 // Dispense time
-int dispense_time = 3500;
+int dispense_time = 5000;
 
 void setup() {
   // Serial init
