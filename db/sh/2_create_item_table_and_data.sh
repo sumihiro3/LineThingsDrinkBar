@@ -14,6 +14,6 @@ CREATE TABLE item (
     updated_timestamp bigint NOT NULL DEFAULT extract(epoch from now())
 );
 insert into item (id, name, description, unit_price, stock, image_url, created_timestamp) values ('item-0001', 'コーラ', 'スキッと爽やかなコーラ', 1000, 10, 'https://4.bp.blogspot.com/-Mv0_RUDAK2M/V9ppyNuaczI/AAAAAAAA9yE/l2_CPuRoWOk60Sh9BAoaPqDi0y1YT2R_wCLcB/s800/petbottle_cola.png', 1558925437);
-insert into item (id, name, description, unit_price, stock, image_url, created_timestamp) values ('item-0002', 'オレンジジュース', 'みんな大好きオレンジジュース', 800, 10, 'https://3.bp.blogspot.com/-X3w1bg1-Xcs/V8VFAHqD6eI/AAAAAAAA9XA/nAth-47Zy6s1h2XqC2rducvPW4PGObOdwCLcB/s800/juice_orange.png', 1558925437);
-insert into item (id, name, description, unit_price, stock, image_url, created_timestamp) values ('item-0003', '麦茶 ', 'ごくごく飲める麦茶', 900, 10, 'https://2.bp.blogspot.com/-FjMG-YiRjOM/V9ppyvigbEI/AAAAAAAA9yI/h4Kri1aOOMYWhP6HT9BsphoD2hQuQL0wACLcB/s800/petbottle_tea_koucha.png', 1558925437);
+insert into item (id, name, description, unit_price, stock, image_url, created_timestamp) values ('item-0002', 'オレンジジュース', 'みんな大好きオレンジジュース', 800, 10, 'https://my-qiita-images.s3-ap-northeast-1.amazonaws.com/line_things_drink_bar/orange_juice.jpg', 1558925437);
+insert into item (id, name, description, unit_price, stock, image_url, created_timestamp) values ('item-0003', '麦茶 ', 'ごくごく飲める麦茶', 900, 10, 'https://my-qiita-images.s3-ap-northeast-1.amazonaws.com/line_things_drink_bar/mugicha.jpg', 1558925437);
 EOSQL
