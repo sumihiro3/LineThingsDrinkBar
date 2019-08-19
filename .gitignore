@@ -1,3 +1,6 @@
 .idea/
 venv/
 db/storage/
+things/*.json
+things/*.sh
+
