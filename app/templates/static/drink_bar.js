@@ -1,4 +1,3 @@
-// const api_url_prefix = 'localhost:5000/api'
 const app = new Vue({
     el: '#app',
     template: '#drink_bar',
