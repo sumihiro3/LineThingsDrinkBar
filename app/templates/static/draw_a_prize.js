@@ -66,12 +66,12 @@ const app = new Vue({
             console.log("Closing LIFF page")
             if (this.liff_initialized === true) {
                 let message = '残念でした。また挑戦してね！'
-                let message_image_url = 'https://3.bp.blogspot.com/-tT4w1UcRCT8/U9y_SoN6IxI/AAAAAAAAjaQ/1WRIrXDc0-g/s800/kuji_hazure.png'
-                let aspect_ratio = "2:1.4"
+                let message_image_url = 'https://my-qiita-images.s3-ap-northeast-1.amazonaws.com/line_things_drink_bar/fukubiki_hazure.png'
+                let aspect_ratio = "1:1"
                 if (this.draw_a_prize_result === true) {
                     message = '当選おめでとうございます！'
-                    message_image_url = 'https://3.bp.blogspot.com/-n1TochpOI8M/WTd48nvtsMI/AAAAAAABEr0/lvzp2xvYT_Yu303SXlfid2WEjFOErVvxQCLcB/s800/pose_kuji_tousen_man.png'
-                    aspect_ratio = "1:1.1"
+                    message_image_url = 'https://my-qiita-images.s3-ap-northeast-1.amazonaws.com/line_things_drink_bar/fukubiki_atari.png'
+                    aspect_ratio = "1:1"
                 }
                 liff.sendMessages([
                     {

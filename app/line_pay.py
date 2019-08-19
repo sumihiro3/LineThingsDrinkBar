@@ -8,7 +8,7 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-LINE_PAY_BOT_LOGO_URL = 'https://s3-ap-northeast-1.amazonaws.com/choice-bot-images/gamaguchi.png'
+LINE_PAY_BOT_LOGO_URL = 'https://my-qiita-images.s3-ap-northeast-1.amazonaws.com/line_things_drink_bar/logo.png'
 
 
 class LinePay:

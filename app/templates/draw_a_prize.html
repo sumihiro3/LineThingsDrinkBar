@@ -3,7 +3,7 @@
 <head>
     <script src="https://d.line-scdn.net/liff/1.0/sdk.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@1.5.x/dist/vuetify.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script>
@@ -15,7 +15,6 @@
         <template id="drink_bar">
 <!--    API is loading...     -->
             <v-container fluid v-if="api_loading === true">
-                <!-- TODO 抽選中な感じを出すメッセージや画像を表示する -->
                 <v-layout>
                     <v-flex xs12>
                         <v-card color="brown lighten-5" class="black--text">
@@ -26,7 +25,7 @@
                             </v-card-title>
                             <v-layout pt-1>
                                 <v-img
-                                        src="https://3.bp.blogspot.com/-G2F1MJmhlo4/UnIEI6QFVMI/AAAAAAAAZ-o/qIuCWdr9ir8/s400/fukubiki_ki.png"
+                                        src="https://my-qiita-images.s3-ap-northeast-1.amazonaws.com/line_things_drink_bar/fukubiki_ki.png"
                                         height="200px"
                                         contain
                                 ></v-img>
@@ -49,7 +48,7 @@
                             </v-card-title>
                             <v-layout pt-1>
                                 <v-img
-                                        src="https://3.bp.blogspot.com/-n1TochpOI8M/WTd48nvtsMI/AAAAAAABEr0/lvzp2xvYT_Yu303SXlfid2WEjFOErVvxQCLcB/s800/pose_kuji_tousen_man.png"
+                                        src="https://my-qiita-images.s3-ap-northeast-1.amazonaws.com/line_things_drink_bar/fukubiki_atari.png"
                                         height="200px"
                                         contain
                                 ></v-img>
@@ -79,7 +78,7 @@
                             </v-card-title>
                             <v-layout pt-1>
                                 <v-img
-                                        src="https://3.bp.blogspot.com/-tT4w1UcRCT8/U9y_SoN6IxI/AAAAAAAAjaQ/1WRIrXDc0-g/s800/kuji_hazure.png"
+                                        src="https://my-qiita-images.s3-ap-northeast-1.amazonaws.com/line_things_drink_bar/fukubiki_hazure.png"
                                         height="200px"
                                         contain
                                 ></v-img>
@@ -104,8 +103,8 @@
             </v-footer>
         </template>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@1.5.x/dist/vuetify.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="{{ url_for('static', filename='vconsole.min.js') }}"></script>
     <script src="{{ url_for('static', filename='draw_a_prize.js') }}"></script>

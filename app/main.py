@@ -3,8 +3,9 @@ import os
 import uuid
 import logging
 from datetime import datetime as dt
+import random
 from flask import (
-    render_template, jsonify, request, abort, redirect
+    render_template, jsonify, request, abort
 )
 
 # LINE
@@ -15,7 +16,7 @@ from linebot.exceptions import (
     InvalidSignatureError,
 )
 from linebot.models import (
-    FollowEvent,
+    FollowEvent
 )
 
 from . import app, db
@@ -37,7 +38,7 @@ pay = LinePay(
     channel_secret=LINE_PAY_CHANNEL_SECRET,
     line_pay_url=LINE_PAY_URL,
     confirm_url=LINE_PAY_CONFIRM_URL,
-    proxy_url=PROXY_URL
+    # proxy_url=PROXY_URL
 )
 
 # Logger
@@ -62,19 +63,20 @@ def get_drink_bar():
     app.logger.info('handler get_drink_bar called!')
     return render_template(
         'drink_bar.html',
-        # message=None,
-        # transaction_id=None
     )
 
 
-@app.route('/pay_by_line_pay', methods=['GET'])
-def get_pay_by_line_pay():
-    app.logger.info('handler get_pay_by_line_pay called!')
+@app.route('/draw_a_prize', methods=['GET'])
+def get_draw_a_prize():
+    app.logger.info('handler get_draw_a_prize called!')
+    transaction_id = request.args.get('transaction_id')
+    app.logger.info('transaction_id: %s', transaction_id)
     return render_template(
-        'pay_by_line_pay.html',
+        'draw_a_prize.html',
+        transaction_id=transaction_id
     )
 
-#
+
 @app.route('/api/items', methods=['GET'])
 def get_items():
     app.logger.info('handler get_items called!')
@@ -106,6 +108,9 @@ def post_purchase_order():
     request_dict = request.json
     user_id = request_dict.get('user_id', None)
     user = User.query.filter(User.id == user_id).first()
+    # ユーザーが登録されていなければ新規登録
+    if user is None:
+        user = add_user(user_id)
     order_items = request_dict.get('order_items', [])
     order_item_list = Item.query.filter(Item.id.in_(order_items))
     app.logger.debug('order_item_list: %s', order_item_list)
@@ -117,6 +122,7 @@ def post_purchase_order():
         'order_id': order.id,
         'order_title': order.title,
         'order_amount': order.amount,
+        'order_item_slot': ordered_item.slot,
         'ordered_item_image_url': ordered_item.image_url
     })
 
@@ -128,6 +134,7 @@ def get_order_info(user_id, order_id):
     app.logger.debug('order_id: %s', order_id)
     # query order
     order = PurchaseOrder.query.filter(PurchaseOrder.id == order_id).first()
+    # return
     return jsonify({
         'order': {
             'id': order.id,
@@ -135,6 +142,72 @@ def get_order_info(user_id, order_id):
             'amount': order.amount
         }
     })
+
+
+@app.route('/api/transaction_order/<user_id>/<transaction_id>', methods=['GET'])
+def get_order_info_by_transaction(user_id, transaction_id):
+    app.logger.info('handler get_order_info_by_transaction called!')
+    app.logger.debug('user_id: %s', user_id)
+    app.logger.debug('transaction_id: %s', transaction_id)
+    # query order
+    order = PurchaseOrder.query.filter(PurchaseOrder.transaction_id == transaction_id).first()
+    ordered_item = Item.query.filter(Item.id == order.details[0].item_id).first()
+    # return
+    return jsonify({
+        'order': {
+            'id': order.id,
+            'title': order.title,
+            'amount': order.amount,
+            'item_slot': ordered_item.slot,
+            'item_image_url': ordered_item.image_url,
+            'can_draw_a_prize': order.can_draw_a_prize()
+        }
+    })
+
+
+@app.route('/api/draw_a_prize/<transaction_id>', methods=['GET'])
+def get_draw_a_prize_api(transaction_id):
+    app.logger.info('handler get_draw_a_prize_api called!')
+    app.logger.debug('transaction_id: %s', transaction_id)
+    order = PurchaseOrder.query.filter(PurchaseOrder.transaction_id == transaction_id).first()
+    app.logger.info('order: %s', order)
+    # 抽選結果
+    draw_result = False
+    # 抽選実施
+    if order is not None and order.can_draw_a_prize() is True:
+        random_list = list(range(0, 100))
+        random.shuffle(random_list)
+        draw_number = random_list[0]
+        app.logger.debug('draw_number: %s', draw_number)
+        if draw_number > 33:
+            draw_result = True
+        # update transaction info
+        order.win_a_prize = draw_result
+        order.prized_timestamp = int(dt.now().timestamp())
+        db.session.commit()
+    else:
+        # すでに抽選済みや決済途中の場合は抽選結果を書き込まない
+        pass
+    # return result
+    return jsonify({
+        'transaction_id': transaction_id,
+        'draw_a_prize_result': draw_result
+    })
+
+
+def add_user(user_id):
+    """
+    ユーザー情報を追加する
+    :param user_id:
+    :type user_id: str
+    :return:
+    """
+    app.logger.info('add_user called!')
+    user = User(user_id, 'MakersBazaarOsakaUser', UserRole.CONSUMER)
+    user.created_timestamp = int(dt.now().timestamp())
+    db.session.add(user)
+    db.session.commit()
+    return user
 
 
 def add_purchase_order(user, order_items):
@@ -185,39 +258,34 @@ LINE Pay メソッド
 @app.route("/pay/reserve", methods=['POST'])
 def handle_pay_reserve():
     app.logger.info('handler handle_pay_reserve called!')
-    # app.logger.debug('Request from data: %s', request.form)
-    # order_id = request.form.get('order_id', None)
-    # user_id = request.form.get('user_id', None)
     app.logger.debug('Request json: %s', request.json)
     request_dict = request.json
     user_id = request_dict.get('user_id', None)
     order_id = request_dict.get('order_id', None)
-    # get PurchaseOrder and User
+    # 注文情報とユーザー情報をデータベースから取得する
     order = PurchaseOrder.query.filter(PurchaseOrder.id == order_id).first()
     app.logger.debug('PurchaseOrder: %s', order)
     user = User.query.filter(User.id == user_id).first()
     app.logger.debug('User: %s', user)
     ordered_item = Item.query.filter(Item.id == order.details[0].item_id).first()
     app.logger.debug('Ordered Item: %s', ordered_item)
-
+    # LINE Pay の決済予約API を実行してtransactionId を取得する
     response = pay.reserve_payment(order, product_image_url=ordered_item.image_url)
     app.logger.debug('Response: %s', json_util.dump_json_with_pretty_format(response))
     app.logger.debug('returnCode: %s', response["returnCode"])
     app.logger.debug('returnMessage: %s', response["returnMessage"])
-
     transaction_id = response["info"]["transactionId"]
     app.logger.debug('transaction_id: %s', transaction_id)
-    # set TransactionId and User to PurchaseOrder
+    # 取得したtransactionId を注文情報に設定してデータベースを更新する
     order.user_id = user.id
     order.transaction_id = transaction_id
     db.session.commit()
     db.session.close()
     payment_url = response["info"]["paymentUrl"]["web"]
-    # return
+    # LINE Pay の決済実行URL をフロントに返す
     return jsonify({
         'payment_url': payment_url
     })
-    # return redirect(payment_url)
 
 
 @app.route("/pay/confirm", methods=['GET'])
@@ -295,7 +363,7 @@ def follow_event_handler(event):
     app.logger.info('handler FollowEvent called!! event:%s', event)
     app.logger.info('UserID: %s', event.source.user_id)
     app.logger.info('User type: %s', event.source.type)
-    # save user info to db
+    # Add user
     user_id = event.source.user_id
     user = User(user_id, 'dummy', UserRole.CONSUMER)
     db.session.add(user)
