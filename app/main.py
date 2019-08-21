@@ -61,6 +61,7 @@ def index():
 @app.route('/drink_bar', methods=['GET'])
 def get_drink_bar():
     app.logger.info('handler get_drink_bar called!')
+    # ドリンクバー画面を表示
     return render_template(
         'drink_bar.html',
     )
@@ -80,6 +81,7 @@ def get_draw_a_prize():
 @app.route('/api/items', methods=['GET'])
 def get_items():
     app.logger.info('handler get_items called!')
+    # DB から商品情報を取得
     item_list = Item.query.filter(Item.active == True).all()
     app.logger.debug(item_list)
     items = []
@@ -94,7 +96,7 @@ def get_items():
         }
         app.logger.debug(item)
         items.append(item)
-    # return items
+    # 販売可能な商品一覧を返す
     app.logger.debug(items)
     return jsonify({
         'items': items
@@ -221,10 +223,12 @@ def add_purchase_order(user, order_items):
     :rtype: PurchaseOrder
     """
     app.logger.info('add_purchase_order called!')
+    # 一意な注文IDを生成する
     order_id = uuid.uuid4().hex
     timestamp = int(dt.now().timestamp())
     details = []
     amount = 0
+    # 注文情報を生成
     for item in order_items:
         detail = PurchaseOrderDetail()
         detail.id = order_id + '-' + item.id
@@ -236,7 +240,7 @@ def add_purchase_order(user, order_items):
         db.session.add(detail)
         details.append(detail)
         amount = amount + detail.amount
-    # generate PurchaseOrder
+    # 注文情報をDBに登録する
     order_title = details[0].item.name
     if len(details) > 1:
         order_title = '{} 他'.format(order_title)
@@ -291,18 +295,20 @@ def handle_pay_reserve():
 @app.route("/pay/confirm", methods=['GET'])
 def handle_pay_confirm():
     app.logger.info('handler handle_pay_confirm called!')
+    # 決済承認完了後、LINE Pay 側から実行される
     transaction_id = request.args.get('transactionId')
     order = PurchaseOrder.query.filter_by(transaction_id=transaction_id).one_or_none()
     if order is None:
         raise Exception("Error: transaction_id not found.")
-    # run confirm API
+    # LINE Pay の決済実行API を実行
     response = pay.confirm_payments(order)
     app.logger.debug('returnCode: %s', response["returnCode"])
     app.logger.debug('returnMessage: %s', response["returnMessage"])
-
+    # 注文情報の決済ステータスを完了にする
     order.status = PurchaseOrderStatus.PAYMENT_COMPLETED.value
     db.session.commit()
     db.session.close()
+    # ドリンクバー画面を表示
     return render_template(
         'drink_bar.html',
         message='Payment successfully completed.',

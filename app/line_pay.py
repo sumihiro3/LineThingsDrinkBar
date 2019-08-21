@@ -105,6 +105,7 @@ class LinePay:
         :return:
         """
         logger.info('Method %s.reserve_payment called!!', self.__class__.__name__)
+        # LINE Pay の決済予約処理を実行
         line_pay_url = self.__line_pay_url
         line_pay_endpoint = f'{line_pay_url}/v2/payments/request'
         order_id = purchase_order.id
@@ -135,7 +136,7 @@ class LinePay:
             body['extras.addFriends'] = extras_add_friends
         if gmextras_branch_name is not None:
             body['gmextras.branchName'] = gmextras_branch_name
-        # リクエスト送信
+        # API 実行
         response = requests.post(
             line_pay_endpoint,
             json_util.dump_json(body).encode('utf-8'),
@@ -155,13 +156,14 @@ class LinePay:
         :return:
         """
         logger.info('Method %s.confirm_payments called!!', self.__class__.__name__)
+        # LINE Pay の決済実行処理を実行
         line_pay_url = self.__line_pay_url
         line_pay_endpoint = f'{line_pay_url}/v2/payments/{purchase_order.transaction_id}/confirm'
         body = {
             'amount': purchase_order.amount,
             'currency': purchase_order.currency,
         }
-        # リクエスト送信
+        # 決済実行API を実行
         response = requests.post(
             line_pay_endpoint,
             json_util.dump_json(body).encode('utf-8'),

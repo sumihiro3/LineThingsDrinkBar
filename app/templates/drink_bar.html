@@ -37,7 +37,7 @@
                         <v-toolbar color="green darken-2" dark>
                             <v-toolbar-title>LINE Things Drink bar</v-toolbar-title>
                         </v-toolbar>
-                        <!-- items -->
+                        <!-- 商品一覧 -->
                         <v-card>
                             <v-container
                                     fluid
@@ -46,11 +46,6 @@
                                 <v-layout row wrap>
                                     <v-flex xs12 v-for="(item, index) in items">
                                         <v-card color="brown lighten-5" class="black--text">
-<!--                                            <v-layout row>-->
-<!--                                                <v-flex xs10 offset-xs1>-->
-<!--                                                    <div class="headline">[[ item.name ]]</div>-->
-<!--                                                </v-flex>-->
-<!--                                            </v-layout>-->
                                             <v-layout pt-1>
                                                 <v-flex xs5>
                                                     <v-img
@@ -60,6 +55,7 @@
                                                     ></v-img>
                                                 </v-flex>
                                                 <v-flex xs7>
+                                                    <!-- 商品情報 -->
                                                     <v-card-title primary-title>
                                                         <div>
                                                             <div><h4 class="pb-1">[[ item.name ]]</h4></div>

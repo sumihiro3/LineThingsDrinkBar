@@ -76,9 +76,9 @@ const app = new Vue({
         },
         getItems: async function() {
             console.log('function getItems called!')
-            // Item 取得
             this.api_loading = true
             const api_url = '/api/items'
+            // 商品情報取得API 実行
             const response = await axios.get(api_url).catch(error => {
                 console.error('API getItems failed...')
                 console.error(error)
@@ -86,6 +86,7 @@ const app = new Vue({
                 this.api_loading = false
             })
             console.log('API response: ', response)
+            // API 実行結果をVue.js の表示用変数へ
             this.api_result = response.data
             this.items = this.api_result.items
             this.api_loading = false
@@ -101,6 +102,7 @@ const app = new Vue({
                 order_items: order_item_ids
             }
             const url = '/api/purchase_order'
+            // 注文情報登録API 実行
             const response = await axios.post(url, params).catch(function (err) {
                 this.api_loading = false
                 console.error('API POST PurchaseOrder failed', err)
@@ -108,6 +110,7 @@ const app = new Vue({
                 throw err
             })
             console.log('Response: ', response)
+            // API 実行結果をVue.js の表示用変数へ
             this.api_result = response.data
             this.order.id = this.api_result.order_id
             this.order.title = this.api_result.order_title
@@ -126,6 +129,7 @@ const app = new Vue({
                 order_id: this.order.id
             }
             const url = '/pay/reserve'
+            // 決済予約API の実行
             console.log('Payment URL:', url)
             const response = await axios.post(url, params).catch(function (err) {
                 this.api_loading = false
@@ -137,7 +141,7 @@ const app = new Vue({
             this.api_result = response.data
             const payment_url = this.api_result.payment_url
             this.flow_status = 'PAYING'
-            // redirect to payment_url
+            // LINE Pay の決済画面へ移動
             window.location.href = payment_url
             this.api_loading = false
         },
