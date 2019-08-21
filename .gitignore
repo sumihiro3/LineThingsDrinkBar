@@ -3,4 +3,6 @@ venv/
 db/storage/
 things/*.json
 things/*.sh
+docker-compose.yml
+*.log
 
