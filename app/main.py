@@ -7,6 +7,7 @@ import random
 from flask import (
     render_template, jsonify, request, abort
 )
+from sqlalchemy import desc
 
 # LINE
 from linebot import (
@@ -126,6 +127,33 @@ def post_purchase_order():
         'order_amount': order.amount,
         'order_item_slot': ordered_item.slot,
         'ordered_item_image_url': ordered_item.image_url
+    })
+
+
+@app.route('/api/purchase_orders', methods=['GET'])
+def get_purchase_orders():
+    app.logger.info('handler get_purchase_orders called!')
+    # DB から注文情報を取得
+    order_list = PurchaseOrder.query.\
+        order_by(desc(PurchaseOrder.created_timestamp)).\
+        limit(10).all()
+    app.logger.debug(order_list)
+    orders = []
+    for o in order_list:
+        order = {
+            'id': o.id,
+            'user_id': o.user_id,
+            'title': o.title,
+            'amount': o.amount,
+            'status': o.status,
+            'ordered_timestamp': o.ordered_timestamp
+        }
+        app.logger.debug(order)
+        orders.append(order)
+    # 注文一覧を返す
+    app.logger.debug(orders)
+    return jsonify({
+        'purchase_orders': orders
     })
 
 
