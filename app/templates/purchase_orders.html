@@ -28,42 +28,12 @@
                 </v-layout>
             </v-container>
 <!--    show PurchaseOrder Graph     -->
-            <v-container fluid v-else-if="draw_a_prize_result === true">
-                <v-layout>
-                    <v-flex xs12>
-                        <v-card color="brown lighten-5" class="black--text">
-                            <v-card-title>
-                                <div>
-                                    <div><h2>注文情報</h2></div>
-                                    <div><h5>履歴</h5></div>
-                                </div>
-                            </v-card-title>
-                            <v-layout pt-1>
-                                <v-img
-                                        src="https://my-qiita-images.s3-ap-northeast-1.amazonaws.com/line_things_drink_bar/fukubiki_atari.png"
-                                        height="200px"
-                                        contain
-                                ></v-img>
-                            </v-layout>
-                            <v-card-actions class="pa-3">
-                                <v-btn
-                                        @click="closeLiffWindow()"
-                                        class="white--text"
-                                        color="brown" block>
-                                    閉じる
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-flex>
-                </v-layout>
+            <v-container fluid v-else>
+                <bar-chart
+                        v-if="!api_loading"
+                        :graph_data="graph_data"
+                ></bar-chart>
             </v-container>
-
-<!-- Footer -->
-            <v-footer class="pa-3">
-                <div>LIFF Version: [[ liff_version ]]</div>
-                <v-spacer></v-spacer>
-                <div>App Version: [[ app_version ]]</div>
-            </v-footer>
         </template>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>

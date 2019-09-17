@@ -79,6 +79,15 @@ def get_draw_a_prize():
     )
 
 
+@app.route('/order_graph', methods=['GET'])
+def get_order_graph():
+    app.logger.info('handler get_order_graph called!')
+    # ドリンクバー画面を表示
+    return render_template(
+        'purchase_orders.html',
+    )
+
+
 @app.route('/api/items', methods=['GET'])
 def get_items():
     app.logger.info('handler get_items called!')
@@ -136,7 +145,7 @@ def get_purchase_orders():
     # DB から注文情報を取得
     order_list = PurchaseOrder.query.\
         order_by(desc(PurchaseOrder.created_timestamp)).\
-        limit(10).all()
+        limit(1000).all()
     app.logger.debug(order_list)
     orders = []
     for o in order_list:
@@ -146,7 +155,7 @@ def get_purchase_orders():
             'title': o.title,
             'amount': o.amount,
             'status': o.status,
-            'ordered_timestamp': o.ordered_timestamp
+            'ordered_at': o.ordered_timestamp
         }
         app.logger.debug(order)
         orders.append(order)

@@ -18,5 +18,5 @@ CREATE TABLE purchase_order (
 insert into purchase_order
     (id, user_id, title, amount, status, ordered_timestamp, created_timestamp)
     values
-    ('order-111111', 'dummy-user', 'test test order', 2000, 'ORDERED', 1558925437, 1558925437);
+    ('order-111111', 'dummy-user', '麦茶', 2000, 'ORDERED', 1558925437, 1558925437);
 EOSQL
