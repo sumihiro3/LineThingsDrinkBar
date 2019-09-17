@@ -11,7 +11,9 @@ CREATE TABLE purchase_order (
     ordered_timestamp bigint NOT NULL DEFAULT 0,
     paid_timestamp bigint NOT NULL DEFAULT 0,
     created_timestamp bigint NOT NULL DEFAULT 0,
-    updated_timestamp bigint NOT NULL DEFAULT extract(epoch from now())
+    updated_timestamp bigint NOT NULL DEFAULT extract(epoch from now()),
+    win_a_prize BOOLEAN NULL DEFAULT NULL,
+	prized_timestamp BIGINT NOT NULL DEFAULT 0
 );
 insert into purchase_order
     (id, user_id, title, amount, status, ordered_timestamp, created_timestamp)
