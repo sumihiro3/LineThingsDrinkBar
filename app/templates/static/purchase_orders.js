@@ -20,7 +20,7 @@ Vue.component('bar-chart', {
                 responsive: true,
                 title: {
                     display: true,
-                    text: '売上推移',
+                    text: '売上・ユーザー数推移',
                     fontSize: 20
                 },
                 legend: {
@@ -28,28 +28,49 @@ Vue.component('bar-chart', {
                     position: 'bottom'
                 },
                 scales: {
-                    xAxes: [{
-                        stacked: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: '日',
-                            fontSize: 18
+                    xAxes: [
+                        {
+                            stacked: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: '日',
+                                fontSize: 18
+                            }
                         }
-                    }],
-                    yAxes: [{
-                        stacked: true,
-                        ticks: {
-                            min: 0,
-                            userCallback: function (tick) {
-                                return tick.toString() + '円';
+                    ],
+                    yAxes: [
+                        {
+                            id: "y-axis-line",
+                            position: "right",
+                            ticks: {
+                                min: 0,
+                                userCallback: function (tick) {
+                                    return tick.toString() + '人';
+                                }
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'ユーザー数',
+                                fontSize: 18
                             }
                         },
-                        scaleLabel: {
-                            display: true,
-                            labelString: '売上',
-                            fontSize: 18
+                        {
+                            id: "y-axis-bar",
+                            position: "left",
+                            stacked: true,
+                            ticks: {
+                                min: 0,
+                                userCallback: function (tick) {
+                                    return tick.toString() + '円';
+                                }
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: '売上',
+                                fontSize: 18
+                            }
                         }
-                    }]
+                    ]
                 },
                 layout: {
                     padding: {
@@ -78,14 +99,36 @@ const app = new Vue({
             labels: ["1月", "2月", "3月", "4月", "5月"],
             datasets: [
                 {
-                    label: 'Printer',
-                    data: [880, 740, 900, 520, 930],
-                    backgroundColor: 'rgba(255, 100, 100, 1)'
+                    type: 'line',
+                    label: 'User',
+                    data: [100, 200, 120, 180, 230],
+                    borderColor: 'orange',
+                    borderWidth: "3",
+                    backgroundColor: 'orange',
+                    fill: false,
+                    // 点の設定
+                    pointStyle: "rect",
+                    pointBorderColor: "orange",
+                    pointBackgroundColor: "orange",
+                    pointRadius: 10,
+                    pointHoverRadius: 12,
+                    // pointHoverBackgroundColor: "rgba(236,124,48,1)",
+                    // pointHoverBorderColor: "rgba(236,124,48,1)",
+                    yAxisID: "y-axis-line"
                 },
                 {
+                    type: 'bar',
+                    label: 'Printer',
+                    data: [880, 740, 900, 520, 930],
+                    backgroundColor: 'rgba(255, 100, 100, 1)',
+                    yAxisID: "y-axis-bar"
+                },
+                {
+                    type: 'bar',
                     label: 'PC',
                     data: [1200, 1350, 1220, 1220, 1420],
-                    backgroundColor: 'rgba(100, 100, 255, 1)'
+                    backgroundColor: 'rgba(100, 100, 255, 1)',
+                    yAxisID: "y-axis-bar"
                 }
             ]
         }
@@ -145,7 +188,8 @@ const app = new Vue({
                 let order_data = {
                     'ordered_at': ordered_at_string,
                     'item': order.title,
-                    'amount': order.amount
+                    'amount': order.amount,
+                    'user_id': order.user_id
                 }
                 order_list.push(order_data)
                 date_set.add(ordered_at_string)
@@ -161,15 +205,23 @@ const app = new Vue({
             const item_list = Array.from(item_set)
             // 日単位での商品別売上合計を出す
             const ordered_amount_by_date_and_item = {}  // 商品名をキーに、日単位での売上合計のリストをセットする
+            const ordered_unique_user_count_by_date = []  // 日単位での注文したユー肉ユーザー数のリストをセットする
             for (let i = 0; i < date_list.length; i++) {
                 let dt = date_list[i]
                 // 同一日付の注文情報のみ抽出
                 let orders_by_date = order_list.filter(function(order) {
                     return order.ordered_at === dt
                 })
+                // 日単位でのユニークユーザー数を集計する
+                let user_set = new Set()
+                for (let j = 0; j < orders_by_date.length; j++) {
+                    let order = orders_by_date[j]
+                    user_set.add(order.user_id)
+                }
+                ordered_unique_user_count_by_date.push(Array.from(user_set).length)
+                // 日単位で商品ごとの売上金額を集計する
                 for (let j = 0; j < item_list.length; j++) {
                     let item = item_list[j]
-                    // 商品ごとに抽出
                     let orders_by_date_and_item = orders_by_date.filter(function (order) {
                         return order.item === item
                     })
@@ -183,10 +235,14 @@ const app = new Vue({
                 }
             }
             console.log(`ordered_amount_by_date_and_item: ${JSON.stringify(ordered_amount_by_date_and_item)}`)
+            console.log(`ordered_unique_user_count_by_date: ${JSON.stringify(ordered_unique_user_count_by_date)}`)
             // Chart.js 用のグラフデータに変換する
             const graph_data = {
                 labels: date_list,
-                datasets: this.convertOrderByDateAndItemToDatasets(ordered_amount_by_date_and_item)
+                datasets: this.convertOrderByDateAndItemToDatasets(
+                    ordered_amount_by_date_and_item,
+                    ordered_unique_user_count_by_date
+                )
             }
             console.log(`GraphData: ${JSON.stringify(graph_data)}`)
             return graph_data
@@ -198,14 +254,35 @@ const app = new Vue({
             })
             return sum
         },
-        convertOrderByDateAndItemToDatasets: function(ordersByDateAndItem) {
+        convertOrderByDateAndItemToDatasets: function(ordersByDateAndItem, orderedUniqueUserCountByDate) {
             console.log(`convertOrderByDateAndItemToDatasets: ${JSON.stringify(ordersByDateAndItem)}`)
             let datasets = []
+            // ユニークユーザー数の折れ線グラフ用データセット
+            const line_color = 'rgba(0,185, 0, 1)'
+            let unique_user_count_dataset = {
+                type: 'line',
+                label: 'ユーザー数',
+                data: orderedUniqueUserCountByDate,
+                borderColor: line_color,
+                borderWidth: "3",
+                backgroundColor: line_color,
+                fill: false,
+                // 点の設定
+                pointStyle: "rect",
+                pointBorderColor: line_color,
+                pointBackgroundColor: line_color,
+                pointRadius: 10,
+                pointHoverRadius: 12,
+                yAxisID: "y-axis-line"
+            }
+            datasets.push(unique_user_count_dataset)
+            // 商品別売上金額の棒グラフ用データセット
             for (let item in ordersByDateAndItem) {
                 let dataset = {
                     label: item,
                     data: ordersByDateAndItem[item],
-                    backgroundColor: this.colorPicker(item)
+                    backgroundColor: this.colorPicker(item),
+                    yAxisID: "y-axis-bar"
                 }
                 datasets.push(dataset)
             }
