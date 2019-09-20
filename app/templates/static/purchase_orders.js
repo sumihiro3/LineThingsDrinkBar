@@ -18,6 +18,7 @@ Vue.component('bar-chart', {
         get_graph_options: function () {
             return {
                 responsive: true,
+                maintainAspectRatio: false,
                 title: {
                     display: true,
                     text: '売上・ユーザー数推移',
@@ -33,7 +34,6 @@ Vue.component('bar-chart', {
                             stacked: true,
                             scaleLabel: {
                                 display: true,
-                                labelString: '日',
                                 fontSize: 18
                             }
                         }
@@ -45,7 +45,7 @@ Vue.component('bar-chart', {
                             ticks: {
                                 min: 0,
                                 userCallback: function (tick) {
-                                    return tick.toString() + '人';
+                                    return tick.toLocaleString() + '人';
                                 }
                             },
                             scaleLabel: {
@@ -61,7 +61,7 @@ Vue.component('bar-chart', {
                             ticks: {
                                 min: 0,
                                 userCallback: function (tick) {
-                                    return tick.toString() + '円';
+                                    return tick.toLocaleString() + '円';
                                 }
                             },
                             scaleLabel: {
@@ -74,8 +74,8 @@ Vue.component('bar-chart', {
                 },
                 layout: {
                     padding: {
-                        left: 50,
-                        right: 50,
+                        left: 20,
+                        right: 20,
                         top: 0,
                         bottom: 0
                     }
