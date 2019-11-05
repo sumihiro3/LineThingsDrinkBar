@@ -76,6 +76,7 @@ class Item(db.Model):
     description = Column(Text, nullable=True)
     unit_price = Column(Integer, nullable=False)
     stock = Column(Integer, nullable=False, default=0)
+    slot = Column(Integer, nullable=False, default=0)
     image_url = Column(String(200), nullable=False)
     active = Column(Boolean, default=True)
     sales_period_timestamp_from = Column(BigInteger, default=0, nullable=False)
@@ -141,6 +142,8 @@ class PurchaseOrder(db.Model):
     transaction_id = Column(String(100), unique=True)
     ordered_timestamp = Column(BigInteger, default=0, nullable=False)
     paid_timestamp = Column(BigInteger, default=0, nullable=False)
+    win_a_prize = Column(Boolean)
+    prized_timestamp = Column(BigInteger, default=0, nullable=False)
     created_timestamp = Column(BigInteger, default=0, nullable=False)
     updated_timestamp = Column(BigInteger, default=int(dt.now().timestamp()), nullable=False)
 
@@ -165,6 +168,20 @@ class PurchaseOrder(db.Model):
 
     def __repr__(self):
         return '<PurchaseOrder %r>' % self.id
+
+    def can_draw_a_prize(self):
+        """
+        抽選可能な状態かどうかを返す
+        下記の条件を満たしていれば抽選可能とする
+        - 決済済み
+        - 未抽選
+        :return:
+        """
+        result = False
+        if self.status == PurchaseOrderStatus.PAYMENT_COMPLETED:
+            if self.win_a_prize is None and self.prized_timestamp == 0:
+                result = True
+        return result
 
 
 class PurchaseOrderDetail(db.Model):
