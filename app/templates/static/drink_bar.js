@@ -50,13 +50,17 @@ const app = new Vue({
         },
         initializedLiff: async function() {
             console.log('function initializedLiff called!')
-            this.liff_initialized = true
+            // this.liff_initialized = true
             this.initVConsole()
 
             this.liff_version = liff._revision
             // ユーザーのプロフィールを取得し、結果からUserID を取得する
-            this.line_profile = await liff.getProfile()
-            this.line_user_id = this.line_profile.userId
+            if (this.liff_initialized === true) {
+                this.line_profile = await liff.getProfile()
+                this.line_user_id = this.line_profile.userId
+            } else {
+                this.line_user_id = 'DUMMY'
+            }
             // 決済完了しているかどうかを確認する
             this.transaction_id = transaction_id
             console.log('transaction_id: ', transaction_id)
@@ -363,7 +367,7 @@ const app = new Vue({
             this.ledCharacteristic.writeValue(command).then(() => {
                 // disconnect device
                 console.log('Done write command to device')
-                setTimeout(() => (this.line_things.device_order_done = true), 3000)
+                setTimeout(() => (this.line_things.device_order_done = true), 8000)
                 // this.closeLiffWindow()
             }).catch(error => {
                 console.error(error)
@@ -377,11 +381,17 @@ const app = new Vue({
     mounted: function() {
         this.api_loading = true
         liff.init(
-            () => this.initializedLiff(),
+            () => {
+                this.liff_initialized = true
+                this.initializedLiff()
+            },
             error => {
                 console.error(error)
-                this.api_loading = false
+                // this.api_loading = false
+                this.liff_initialized = false
+                this.initializedLiff()
             }
+
         )
     }
 });
